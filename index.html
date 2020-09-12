@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+        <script type="text/javascript" src="js/underscore-min.js"></script>
+        <script type="text/javascript" src="js/backbone-min.js"></script>
+        <script type="text/javascript" src="js/joystick_view.js"></script>
+    </head>
+    <body>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script type="text/html" id="joystick-view">
+    <canvas id="joystickCanvas" width="<%= squareSize %>" height="<%= squareSize %>" style="width: <%= squareSize %>px; height: <%= squareSize %>px;">
+        </canvas>
+    </script>
+
+    <div style="display: inline-block;" id="joystickContent">
+    
+    </div>
+    <div style="display: inline-block;">
+    <div style="width: 0;
+	height: 0;
+    margin-left: 50px;
+	border-left: 25px solid transparent;
+	border-right: 25px solid transparent;
+	border-bottom: 50px solid #555;"></div>
+    <br>
+    <div style="width: 0;
+	height: 0;
+    margin-left: 50px;
+	border-left: 25px solid transparent;
+	border-right: 25px solid transparent;
+	border-top: 50px solid #555;"></div>
+    <div>
+    </div>
+        Horizontal: <span id="xVal"></span><br/>
+        Vertical: <span id="yVal"></span><br/>
+    </div>
+
+    <script type="text/javascript">
+
+        var HOST="wss://127.0.0.1" //Host Address of PIC
+        var websocket = new WebSocket(HOST, "protocolOne");
+        
+        $(document).ready(function(){
+            var joystickView = new JoystickView(150, function(callbackView){
+                $("#joystickContent").append(callbackView.render().el);
+                setTimeout(function(){
+                    callbackView.renderSprite();
+                }, 0);
+            });
+            joystickView.bind("verticalMove", function(y){
+                angle=((y+1)/2)*180;
+                $("#yVal").html(parseInt(angle)+'°');
+                websocket.send(angle+'0');
+
+            });
+            joystickView.bind("horizontalMove", function(x){
+                angle=((x+1)/2)*180;
+                $("#xVal").html(parseInt(angle)+'°');
+                websocket.send('0'+angle);
+            });
+        });
+    </script>
+    </body>
+</html>
